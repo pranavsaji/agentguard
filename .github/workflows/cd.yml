@@ -1,0 +1,72 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+# Only one deployment at a time; cancel in-flight if a newer push arrives
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-web:
+    name: Deploy — Web (Vercel)
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+      - name: Pull Vercel environment
+        working-directory: apps/web
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Build for Vercel
+        working-directory: apps/web
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Deploy to production
+        working-directory: apps/web
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  deploy-api:
+    name: Deploy — API (placeholder)
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      # ------------------------------------------------------------
+      # Production deployment: build Docker image, push to ECR,
+      # then update the EKS deployment. Example commands:
+      #
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+      #     aws-region: us-east-1
+      #
+      # - name: Push to ECR
+      #   run: |
+      #     aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
+      #     docker build -t $ECR_REGISTRY/agentguard-api:${{ github.sha }} apps/api
+      #     docker push $ECR_REGISTRY/agentguard-api:${{ github.sha }}
+      #
+      # - name: Update EKS deployment
+      #   run: |
+      #     aws eks update-kubeconfig --name agentguard-prod
+      #     kubectl set image deployment/agentguard-api api=$ECR_REGISTRY/agentguard-api:${{ github.sha }}
+      #     kubectl rollout status deployment/agentguard-api
+      # ------------------------------------------------------------
+      - name: Deployment placeholder
+        run: echo "API deployment not yet configured — wire up ECR + EKS steps above"

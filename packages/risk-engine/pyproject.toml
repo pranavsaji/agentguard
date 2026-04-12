@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentguard-risk-engine"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = ["pydantic>=2.7.0", "agentguard-nhi-schema"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["risk_engine"]
+
+[tool.hatch.build]
+sources = ["."]
