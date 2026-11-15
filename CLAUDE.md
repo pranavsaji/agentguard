@@ -32,7 +32,7 @@ Required env: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK
 **API** (`apps/api`):
 ```bash
 pip install -e packages/nhi-schema packages/risk-engine apps/api
-cd apps/api && uvicorn main:app --reload --port 8000
+cd apps/api && uvicorn api.main:app --reload --port 8000
 # OpenAPI docs: http://localhost:8000/docs
 ```
 Required env: `DATABASE_URL` (asyncpg), `CLERK_PEM_PUBLIC_KEY`
@@ -41,7 +41,7 @@ Optional env: `OPA_URL`, `REDIS_URL`, `SQS_SCAN_QUEUE_URL`, `SQS_ROTATION_QUEUE_
 **Sensor** (`apps/sensor`):
 ```bash
 pip install -e packages/nhi-schema apps/sensor
-cd apps/sensor && python main.py
+cd apps/sensor && python -m sensor.main
 ```
 Required env: `AGENTGUARD_CONTROL_PLANE_URL`, `AGENTGUARD_SENSOR_TOKEN`, `AGENTGUARD_TENANT_ID`, `ENABLED_PROVIDERS`
 
@@ -76,13 +76,13 @@ Not in public OpenAPI docs. Accepts `ScanResult`, upserts NHIs, queues risk reco
 
 ## Key Patterns
 
-**Multi-tenancy**: Schema-per-tenant in PostgreSQL (`tenant_<uuid>` schema) + Row-Level Security. Every request sets `search_path` and `app.tenant_id` via `tenant_session()` in `apps/api/core/database.py`. Never bypass this.
+**Multi-tenancy**: Schema-per-tenant in PostgreSQL (`tenant_<uuid>` schema) + Row-Level Security. Every request sets `search_path` and `app.tenant_id` via `tenant_session()` in `apps/api/api/core/database.py`. Never bypass this.
 
-**Auth (user-facing)**: Clerk JWTs carry `tenant_id` and `role` in `public_metadata`. Validated in `apps/api/core/auth.py`. `Auth = Annotated[AuthContext, Depends(get_auth_context)]` is the dependency alias used in all routers.
+**Auth (user-facing)**: Clerk JWTs carry `tenant_id` and `role` in `public_metadata`. Validated in `apps/api/api/core/auth.py`. `Auth = Annotated[AuthContext, Depends(get_auth_context)]` is the dependency alias used in all routers.
 
 **Auth (sensor)**: `X-Sensor-Token` header validated against `SENSOR_AUTH_SECRET` env var. Used on behavioral event ingestion and the internal scan-results endpoint.
 
-**Risk scoring**: `compute_risk_score(identity: NHIIdentity)` from `packages/risk-engine/scorer.py`. 5-factor deterministic model. Scores auto-recomputed by `risk_recomputer` worker after every scan.
+**Risk scoring**: `compute_risk_score(identity: NHIIdentity)` from `packages/risk-engine/risk_engine/scorer.py`. 5-factor deterministic model. Scores auto-recomputed by `risk_recomputer` worker after every scan.
 
 **Policy engine**: YAML DSL → OPA Rego. **Fail-closed in ENFORCE/AUTO_REMEDIATE mode** (HTTP 503 if OPA unreachable). Fail-open in MONITOR/ALERT mode. `policy_enforcer` worker evaluates all active policies after every scan and records violations.
 
@@ -92,7 +92,7 @@ Not in public OpenAPI docs. Accepts `ScanResult`, upserts NHIs, queues risk reco
 
 **Notifications**: `send_notification()` in `integrations/service.py` inserts an alert row and fans out to all matching enabled webhooks. Webhook delivery is fire-and-forget (failures are logged, not raised).
 
-**NHI data model**: Canonical schema in `packages/nhi-schema/models.py`. Use this across all three apps — never define a parallel NHI type.
+**NHI data model**: Canonical schema in `packages/nhi-schema/nhi_schema/models.py`. Use this across all three apps — never define a parallel NHI type.
 
 ## Database Tables (per-tenant schema)
 
@@ -109,7 +109,7 @@ Not in public OpenAPI docs. Accepts `ScanResult`, upserts NHIs, queues risk reco
 | `integration_webhooks` | External notification endpoints |
 | `alerts` | Notification history, acknowledgement state |
 
-All tables have RLS enabled. New tables are provisioned in `apps/api/core/database.py:provision_tenant_schema()`.
+All tables have RLS enabled. New tables are provisioned in `apps/api/api/core/database.py:provision_tenant_schema()`.
 
 ## Frontend Pages
 
@@ -129,7 +129,7 @@ All pages are `"use client"`, use `useAuth()` from Clerk, and call `apiClient.*`
 | Workflow | Trigger | Jobs |
 |----------|---------|------|
 | `ci.yml` | Every push + PRs to main | api-test, sensor-install, risk-engine-test, web-lint-build |
-| `cd.yml` | Push to main only | deploy-web (Vercel), deploy-api (EKS placeholder) |
+| `cd.yml` | Manual (workflow_dispatch) | deploy-web (Vercel), deploy-api (EKS placeholder) |
 
 Required GitHub secrets for CD: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
 

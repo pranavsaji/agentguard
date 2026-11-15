@@ -269,7 +269,7 @@ Start the server:
 
 ```bash
 cd apps/api
-uvicorn main:app --reload --port 8000
+uvicorn api.main:app --reload --port 8000
 ```
 
 The API auto-bootstraps the `public.tenants` table on first start. Interactive docs are available at `http://localhost:8000/docs`.
@@ -306,7 +306,7 @@ Run the scan loop:
 
 ```bash
 cd apps/sensor
-python main.py
+python -m sensor.main
 ```
 
 The sensor runs a configurable scan loop (default: every 4 hours), normalizes discovered identities into `NHIIdentity` records, and POSTs results to the control plane.

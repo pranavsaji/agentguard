@@ -11,5 +11,3 @@ dependencies = ["pydantic>=2.7.0", "agentguard-nhi-schema"]
 [tool.hatch.build.targets.wheel]
 packages = ["risk_engine"]
 
-[tool.hatch.build]
-sources = ["."]

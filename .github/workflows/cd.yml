@@ -1,8 +1,8 @@
 name: CD
 
 on:
-  push:
-    branches: [main]
+  # Manual until the Vercel and EKS secrets are configured, so main stays green.
+  workflow_dispatch:
 
 # Only one deployment at a time; cancel in-flight if a newer push arrives
 concurrency:

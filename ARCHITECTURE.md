@@ -681,9 +681,9 @@ Pricing metric: **NHI count** (like seat count for human IAM). Scales naturally 
 
 ## Critical Files to Create First
 
-1. `apps/api/core/database.py` — tenant schema routing (the foundation everything else sits on)
+1. `apps/api/api/core/database.py` — tenant schema routing (the foundation everything else sits on)
 2. `apps/sensor/connectors/base.py` — the abstraction all 4 cloud connectors implement
-3. `packages/nhi-schema/models.py` — canonical NHI data model (shared across web, api, sensor)
-4. `apps/api/core/auth.py` — Clerk JWT validation + tenant extraction middleware
+3. `packages/nhi-schema/nhi_schema/models.py` — canonical NHI data model (shared across web, api, sensor)
+4. `apps/api/api/core/auth.py` — Clerk JWT validation + tenant extraction middleware
 5. `infrastructure/terraform/modules/control-plane/main.tf` — the infra foundation
 6. `apps/web/app/dashboard/inventory/page.tsx` — first user-facing screen

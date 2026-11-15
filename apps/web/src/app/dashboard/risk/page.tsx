@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useAuth } from "@clerk/nextjs"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts"
 import { apiClient, NHIIdentity, Severity } from "@/lib/api-client"
-import { AlertTriangle, ShieldCheck, Shield, ShieldX } from "lucide-react"
+import { AlertTriangle, ShieldCheck, Shield, ShieldX, type LucideIcon } from "lucide-react"
 
 const SEVERITY_COLORS: Record<Severity, string> = {
   CRITICAL: "#ef4444",
@@ -15,7 +15,7 @@ const SEVERITY_COLORS: Record<Severity, string> = {
 
 interface SeverityCount { severity: Severity; count: number }
 
-function SeverityCard({ severity, count, icon: Icon }: { severity: Severity; count: number; icon: any }) {
+function SeverityCard({ severity, count, icon: Icon }: { severity: Severity; count: number; icon: LucideIcon }) {
   return (
     <div className="rounded-lg border bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
