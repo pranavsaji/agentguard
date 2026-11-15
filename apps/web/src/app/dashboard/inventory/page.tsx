@@ -131,7 +131,7 @@ export default function InventoryPage() {
           onChange={e => setSearch(e.target.value)}
           className="max-w-sm"
         />
-        <Select value={provider} onValueChange={setProvider}>
+        <Select value={provider} onValueChange={v => setProvider(v ?? "all")}>
           <SelectTrigger className="w-36"><SelectValue placeholder="Provider" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Providers</SelectItem>
@@ -140,7 +140,7 @@ export default function InventoryPage() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={status} onValueChange={setStatus}>
+        <Select value={status} onValueChange={v => setStatus(v ?? "all")}>
           <SelectTrigger className="w-32"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>

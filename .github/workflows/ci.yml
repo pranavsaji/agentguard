@@ -55,6 +55,10 @@ jobs:
           pip install -e apps/sensor
       - name: Verify imports
         run: python -c "from sensor.connectors.base import BaseConnector; print('sensor imports ok')"
+      - name: Run unit tests
+        run: |
+          pip install pytest
+          pytest apps/sensor/tests -v
 
   risk-engine-test:
     name: Risk Engine — unit tests
@@ -72,21 +76,9 @@ jobs:
         run: |
           pip install -e packages/nhi-schema
           pip install -e packages/risk-engine
-      - name: Smoke-test scorer
-        run: |
-          python - <<'EOF'
-          from nhi_schema.models import NHIIdentity, NHIType, Provider, Classification, NHIStatus
-          from risk_engine.scorer import compute_risk_score
-          import uuid
-          identity = NHIIdentity(
-              tenant_id=uuid.uuid4(), external_id="test-key", name="test",
-              type=NHIType.API_KEY, provider=Provider.AWS,
-          )
-          score = compute_risk_score(identity)
-          assert 0 <= score.score <= 100, f"Score out of range: {score.score}"
-          assert len(score.factors) == 5, "Expected 5 factors"
-          print(f"Score: {score.score} ({score.severity}) — OK")
-          EOF
+          pip install pytest
+      - name: Run unit tests
+        run: pytest packages/risk-engine/tests -v
 
   web-lint-build:
     name: Web — lint & build
