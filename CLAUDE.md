@@ -141,7 +141,7 @@ Required GitHub secrets for CD: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT
 | API | FastAPI, SQLAlchemy 2.0 async, Pydantic v2, OPA |
 | Databases | PostgreSQL 16 (inventory, schema-per-tenant), ClickHouse (behavioral — config wired, not yet tables), Redis (cache/JIT) |
 | Queue | AWS SQS + SNS |
-| Sensor clouds | boto3 (AWS), Azure SDK, google-cloud, PyGithub |
+| Sensor clouds | boto3 (AWS), Azure SDK + Microsoft Graph, google-cloud, PyGithub |
 | Infra | Terraform, Helm, EKS, Vercel |
 
 ## CISO-Relevant Security Properties

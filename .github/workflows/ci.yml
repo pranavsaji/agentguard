@@ -55,6 +55,10 @@ jobs:
           pip install -e apps/sensor
       - name: Verify imports
         run: python -c "from sensor.connectors.base import BaseConnector; print('sensor imports ok')"
+      - name: Run unit tests
+        run: |
+          pip install pytest
+          pytest apps/sensor/tests -v
 
   risk-engine-test:
     name: Risk Engine — unit tests
